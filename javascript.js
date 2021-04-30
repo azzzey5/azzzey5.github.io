@@ -1,10 +1,4 @@
-/*
- *
- * akshay sharma 
- * fxn769@gmail.com
- * 5/7/2020
- * 
- */
+
 
 var socialtags = [{
     img: "img/github.svg",
