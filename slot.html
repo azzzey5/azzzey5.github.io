@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <script src=
+         "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+      <script>
+         function audioAlert(){
+           var vid = document.getElementById("audio");
+           vid.play();
+           }
+           
+         function chkData(){
+           age=$("#age").val();
+           dat=$("#date").val();
+           dis=$("#District").val();
+           $.get("https://cdn-api.co-vin.in/api/v2/appointment/sessions/calendarByDistrict?district_id="+dis+"&date="+dat, function(data, status){
+         
+           var found="<br>";
+           var eighteen=0;
+           var totalslot=0;
+           var hospitalname;  
+            $.each(data.centers, function(key, value) {         
+               $.each(value.sessions,function(k,v){
+                   if(v.min_age_limit==age & v.available_capacity>0){
+                       found+="Hospital Name:"+value.name+"&nbsp;&nbsp;&nbsp;Date:"+v.date+"&nbsp;&nbsp;&nbsp;Number of Slots"+v.available_capacity+"<br/>";
+                       if(v.min_age_limit==18){
+                           eighteen++;
+                           
+                       }
+                   }
+                   if(v.min_age_limit==age){
+                       totalslot++;
+                   }
+               });  
+           });
+           if(found=="<br>"){
+               found="Not Found";
+           }
+           if(eighteen>0){
+               audioAlert();
+               
+           }
+           $( "#total" ).html("Total Slots Listed:"+totalslot);
+           $( "#name" ).html("Total Available:"+found);
+           });
+           var d = new Date();
+         
+           $("#lastSyncTime").html("Last Sync on: "+d.toLocaleTimeString());
+         }
+         $(document).ready(function(){
+           $("#search").click(function(){
+               chkData();
+           });
+           setInterval(function(){
+               if($("#auto").val()=="on"){
+                   chkData();
+            }
+           }, 30000);
+         
+         function fetchDis(){
+           var stateSelected = $("#state").val();
+           $("#District").html("");
+           $.get("https://cdn-api.co-vin.in/api/v2/admin/location/districts/"+stateSelected, function(districtsData, status){
+           $.each(districtsData, function(districtsDetailsKey, districtsDetailsValue) {
+               $.each(districtsDetailsValue, function(dK, dV) {
+                   $("#District").append("<option value='"+dV.district_id+"''>"+dV.district_name+"<\/option>");     
+               }); 
+           }); 
+         });
+         
+         }
+         $('#state').on('change', function() {
+           fetchDis();
+         });
+         
+         
+         
+         $.get("https://cdn-api.co-vin.in/api/v2/admin/location/states", function(stateData, status){
+           $.each(stateData, function(StateDetailsKey, StateDetailsValue) {
+               $.each(StateDetailsValue, function(sK, sV) {
+                   $("#state").append("<option value='"+sV.state_id+"''>"+sV.state_name+"<\/option>");     
+               }); 
+           }); 
+         });
+         
+         
+         var today = new Date();
+         
+         var dd = String(today. getDate()). padStart(2, '0');
+         var mm = String(today. getMonth() + 1). padStart(2, '0'); 
+         today= dd+"-"+mm+"-2021";
+         $("#date").val(today);
+         
+         });
+         
+      </script>
+      <title></title>
+   </head>
+   <body>
+      <h1>Co-Win Vaccination Slot Finder</h1>
+      <br>
+      Quick Note:<br>
+      Friends,<br>
+      The below tool will help you to find a free vaccine slot without
+      you checking every time.<br>
+      Step 1: Choose the Start Date below, by default current date,
+      will be selected. slots for 7days from the selected date will be
+      searched<br>
+      Step 2: Select State and then District.<br>
+      Step 3: Choose the age range<br>
+      Step 4: Auto Refresh On/Off. Keep this "on" to enable auto-search
+      every 30 Sec for the selected choice.<br>
+      Step 5: Click Seach Slot and keep the window open.<br>
+      <br>
+      <br>
+      This script will search for slots every 30 sec and when found it
+      will display the result.<br>
+      <br>
+      For 18+ Slots, a Special sound alert when a slot is found.<br>
+      <br>
+      Tips:<br>
+      1. This is only for the slot finding propose and you cant
+      complete the booking here. Link for booking: <a href=
+         "https://selfregistration.cowin.gov.in/" target=
+         "_blank">https://selfregistration.cowin.gov.in/</a><br>
+      2. When slot for always starts from Co-win homepage or dashboard
+      to avoid session logout issue.<br>
+      <br>
+      <br>
+      Date: <input type="text" id="date" value=""> (Search Start
+      Date)<br>
+      <br>
+      State: <select id="state">
+      </select><br>
+      District: <select id="District">
+      </select><br>
+      Age: 
+      <select id="age" name="age">
+         <option value="18">
+            18+
+         </option>
+         <option value="45">
+            45+
+         </option>
+      </select>
+      <br>
+      Auto Refresh: 
+      <select id="auto" name="auto">
+         <option value="on">
+            on
+         </option>
+         <option value="off">
+            off
+         </option>
+      </select>
+      <br>
+      <br>
+      <button id="search">Search Slots</button><br>
+      <br>
+      <div id="lastSyncTime"></div>
+      <br>
+      <br>
+      <div id="total"></div>
+      <br>
+      <br>
+      <div id="name"></div>
+      <br>
+      <br>
+      <br>
+      <br>
+      <audio controls="" src=
+         "https://cowinscript.s3.ap-south-1.amazonaws.com/alert.mp3" id=
+         "audio">Your browser does not support the <code>audio</code>
+         element.
+      </audio>
+      <div>
+         Disclaimer: Please note the purpose of this page is to aid
+         anyone who is looking for vaccination slots,<br>
+         I don't take any responsibility for slots availability or any
+         concern or issues caused due to vaccination or data
+         validation,<br>
+         Usage of this tool is on your own risk. all API and access used
+         are from API Setu and all access to API is strictly
+         Public-facing.<br>
+         if any queries reach out balu1984 Gmail com
+      </div>
+      <br>
+      <div style="align:center;width:100%">
+         <a href="https://www.freecounterstat.com" title=
+            "visitors counter"><img src=
+            "https://counter1.stat.ovh/private/freecounterstat.php?c=68ba7dyzt6zzhqj2lwn81qswp6p1yfeb"
+            border="0" title="visitors counter" alt="visitors counter"></a>
+      </div>
+   </body>
+</html>
